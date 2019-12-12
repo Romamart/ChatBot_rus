@@ -105,9 +105,9 @@ def evaluateInput(input_sentence='', encoder=encoder, decoder=decoder, searcher=
                                     path += word + '+'
                             else:
                                 path += part.name + '+'
-                print(path[:-1] + '/')
+                return path[:-1] + '/'
             else:
-                print('Cлишком много адресов')
+                return 'Cлишком много адресов'
 
 
 
@@ -115,7 +115,7 @@ def evaluateInput(input_sentence='', encoder=encoder, decoder=decoder, searcher=
             input_sentence = proc.normalizeString(input_sentence)
             output_words = evaluate(encoder, decoder, searcher, voc, input_sentence)
             output_words[:] = [x for x in output_words if not (x == 'EOS' or x == 'PAD')]
-            print('Bot:', ' '.join(output_words))
+            return ' '.join(output_words)
 
     except KeyError:
-        return("Мая твая нипанимать :с")
+        return "Мая твая нипанимать :с"
