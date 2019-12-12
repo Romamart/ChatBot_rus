@@ -1,0 +1,33 @@
+*{
+    padding: 20;
+    margin: 20;
+}
+
+body{
+    color: black;
+    background-image: url("/static/imgs/water.jpg");
+}
+
+.wrapper{
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%)
+}
+
+h1{
+    font-size: 60px;
+}
+
+.links{
+    /* position: relative; */
+    display: grid;
+    grid-template-rows:repeat(2, 1fr);
+    row-gap: 1em;
+    font-size: 35px;
+    margin: auto;
+    color: black;
+    /* margin-right: -30%; */   
+    text-align: center;
+    /* width: 5em; */
+}
