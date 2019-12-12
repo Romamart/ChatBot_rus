@@ -1,0 +1,30 @@
+body{
+    color: black;
+    background-image: url("/static/imgs/wood.jpg");
+}
+
+
+body{
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+    display: grid;
+    grid-template-rows:repeat(1, 1fr);
+    grid-gap: 25px;
+}
+
+.header{
+    text-align: center;
+    font-size: 60px;
+}
+
+.messageList{
+    text-align: center;
+    font-size: 25px;
+}
+
+input{
+    border-style: solid;
+    size: 20px;
+
+}
