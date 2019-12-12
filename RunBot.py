@@ -7,6 +7,7 @@ from Classes import *
 from Proc import Proc
 from Voc import Voc
 import requests
+from natasha import AddressExtractor
 # from natasha import NamesExtractor, AddressExtractor
 
 import os
@@ -77,18 +78,44 @@ def evaluate(encoder, decoder, searcher, voc, sentence, max_length=10):
 
 
 def evaluateInput(input_sentence='', encoder=encoder, decoder=decoder, searcher=searcher, voc=voc):
+    ex = AddressExtractor()
+    line = "найти Санкт-Петербург, улица Федора Абрамова, 9"
+    t = {}
+    mathes = ex(line)
+    for i in range(3):
+        t[type(mathes[0].fact.parts[i])] = i
     try:
         if "найти" in input_sentence.lower().lstrip():
-            ex = NamesExtractor()
+            ex = AddressExtractor()
             if ex(input_sentence) and len(ex(input_sentence)) == 1:
-                path = 'https://vk.com/search'
-                first_mask = '?c%5Bper_page%5D=40&c%5Bphoto%5D=1&c%5Bq%5D='
+                path = 'https://www.google.ru/maps/place/'
+                for part in ex(input_sentence)[0].fact.parts:
+                    flag = t[type(part)]
+                    if flag == 2:
+                        if part.number != None:
+                            if part.type != None:
+                                path += part.type + '+'
+                            path += part.number + '+'
+                    else:
+                        if part.name != None:
+                            if part.type != None:
+                                path += part.type + '+'
+                            if len(part.name.split(' ')) > 1:
+                                for word in part.name.split(' '):
+                                    path += word + '+'
+                            else:
+                                path += part.name + '+'
+                print(path[:-1] + '/')
+            else:
+                print('Cлишком много адресов')
 
 
-        input_sentence = proc.normalizeString(input_sentence)
-        output_words = evaluate(encoder, decoder, searcher, voc, input_sentence)
-        output_words[:] = [x for x in output_words if not (x == 'EOS' or x == 'PAD')]
-        return ' '.join(output_words)
+
+        else:
+            input_sentence = proc.normalizeString(input_sentence)
+            output_words = evaluate(encoder, decoder, searcher, voc, input_sentence)
+            output_words[:] = [x for x in output_words if not (x == 'EOS' or x == 'PAD')]
+            print('Bot:', ' '.join(output_words))
 
     except KeyError:
         return("Мая твая нипанимать :с")
