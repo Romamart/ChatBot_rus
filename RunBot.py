@@ -63,8 +63,6 @@ decoder.eval()
 searcher = GreedySearchDecoder(encoder, decoder)
 
 
-
-
 def evaluate(encoder, decoder, searcher, voc, sentence, max_length=10):
     indexes_batch = [proc.indexesFromSentence(voc, sentence)]
     lengths = torch.tensor([len(indexes) for indexes in indexes_batch])
