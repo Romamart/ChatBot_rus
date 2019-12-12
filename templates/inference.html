@@ -6,18 +6,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/inference.css') }}">
 </head>
 <body>
-    <h2 class="header"> Workspace </h2>
-    <form method="POST" action="/add_message">
-        <input type="text" name="textToChatbot">
-        <button type="submit">Add message</button>
-    </form>
-    
-    <div class="messageList">
-        <h3>Messages List</h3>
-        {% for message in messages %}
-            <div> <b> {{ message[0] }} </b>:&nbsp; {{ message[1] }} </div>
-        {% endfor  %}
+    <a href="{{ url_for('mainPage') }}" class="back"> Back </a>
+    <div class="wrapper">
+        <h2 class="header"> Workspace </h2>
+        <form method="POST" action="/add_message">
+            <input type="text" name="textToChatbot">
+            <button type="submit">Add message</button>
+        </form>
+        
+        <div class="messageList">
+            <h3>Messages List</h3>
+            {% for message in messages %}
+                <div> <b> {{ message[0] }} </b>:&nbsp; {{ message[1] }} </div>
+            {% endfor  %}
+        </div>
     </div>
-
 </body>
 </html>

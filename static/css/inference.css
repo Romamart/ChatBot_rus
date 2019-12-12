@@ -3,8 +3,13 @@ body{
     background-image: url("/static/imgs/wood.jpg");
 }
 
+.back{
+    position: absolute;
+    font-size: 25px;
+    color: greenyellow;
+}
 
-body{
+.wrapper{
     position: absolute;
     left: 50%;
     transform: translate(-50%);
@@ -24,7 +29,9 @@ body{
 }
 
 input{
+    position: relative;
     border-style: solid;
     size: 20px;
-
+    margin-left: 20%;
 }
+
