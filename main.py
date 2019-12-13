@@ -1,7 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request
 
 import asyncio
-from RunBot import evaluateInput  # output chatbot sentence 
 
 app = Flask(__name__)
 messages = []
