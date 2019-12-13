@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request
 
 import asyncio
+import re
 
 app = Flask(__name__)
 messages = []
@@ -18,17 +19,28 @@ async def tcp_echo_client(message, loop):
         return "*еле уловимый шепот* Оживите меня."
     
 
+def handleListLinks(text):
+    for link in reversed(re.findall(".*\n", text)):
+         messages.insert(0, ["Chatbot", link[:-1]])
+
+
 def generateMessage(fromUser):
     if fromUser:
         text = request.form['textToChatbot']
         user = "User"
+        messages.insert(0, [user, text])
     else:
+        user = "Chatbot"
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         text = loop.run_until_complete(tcp_echo_client(messages[0][1], loop))
         loop.close()
-        user = "Chatbot"
-    return [user, text]
+        if text[:6] == "--list":
+            handleListLinks(text[6:])
+        else:
+            messages.insert(0, [user, text])
+
+        
 
 
 @app.route('/', methods=['GET'])
@@ -44,9 +56,10 @@ def mainPage():
 @app.route('/inference', methods=['GET'])
 def inference():
     global redirection
+    # Отмена вывода сбщ бота при первом заходе на стр inference
     if redirection:
-        messages.insert(0, generateMessage(False))
         redirection = False
+        generateMessage(redirection)
     return render_template('inference.html', messages=messages)
 
 
@@ -56,9 +69,9 @@ def reinforcment():
 
 @app.route('/add_message', methods=['POST'])
 def addMessages():
-    messages.insert(0, generateMessage(True))
     global redirection
     redirection = True
+    generateMessage(redirection)
     return redirect(url_for('inference'))
 
 

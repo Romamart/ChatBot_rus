@@ -113,9 +113,9 @@ def evaluateInput(input_sentence='', encoder=encoder, decoder=decoder, searcher=
                         tree = lxml.html.fromstring(rec.text)
                         links = tree.xpath('//a[@class="simple_fit_item search_item"]/@href')
                         if links != []:
-                            st = ''
+                            st = '--list'
                             for i in range(len(links)):
-                                st += vk_mask + links[i] + '\n'
+                                st += (vk_mask + links[i] + '\n')
                             return st
                         else:
                             return 'По вашему запросу ничего не найдено'
