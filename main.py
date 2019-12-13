@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request
 
+import asyncio
 from RunBot import evaluateInput  # output chatbot sentence 
 
 app = Flask(__name__)
@@ -7,12 +8,26 @@ messages = []
 redirection = False
 
 
+async def tcp_echo_client(message, loop):
+    try:
+        reader, writer = await asyncio.open_connection('127.0.0.1', 8888, loop=loop)
+        writer.write(message.encode())
+        data = await reader.read(100)
+        writer.close()
+        return data.decode()
+    except:
+        return "*еле уловимый шепот* Оживите меня."
+    
+
 def generateMessage(fromUser):
     if fromUser:
         text = request.form['textToChatbot']
         user = "User"
     else:
-        text = evaluateInput(messages[-1][1])
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        text = loop.run_until_complete(tcp_echo_client(messages[-1][1], loop))
+        loop.close()
         user = "Chatbot"
     return [user, text]
 
