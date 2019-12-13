@@ -30,7 +30,7 @@ decoder_n_layers = 2
 dropout = 0.1
 batch_size = 64
 
-checkpoint_iter = 4000
+checkpoint_iter = 10000
 loadFilename = os.path.join(save_dir, model_name, corpus_name,
                             '{}-{}_{}'.format(encoder_n_layers, decoder_n_layers, hidden_size),
                             '{}_checkpoint.tar'.format(checkpoint_iter))
@@ -127,6 +127,16 @@ def evaluateInput(input_sentence='', encoder=encoder, decoder=decoder, searcher=
             input_sentence = proc.normalizeString(input_sentence)
             output_words = evaluate(encoder, decoder, searcher, voc, input_sentence)
             output_words[:] = [x for x in output_words if not (x == 'EOS' or x == 'PAD')]
+            pos = 0
+            k = 1
+            for i in range(len(output_words)-1):
+                if output_words[i] == output_words[i+1]:
+                    k+=1
+                    pos = i+1
+            if k>2:
+                output_words = output_words[:pos]
+
+
             return ' '.join(output_words)
 
     except KeyError:
