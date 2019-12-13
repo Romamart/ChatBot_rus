@@ -26,7 +26,7 @@ def generateMessage(fromUser):
     else:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        text = loop.run_until_complete(tcp_echo_client(messages[-1][1], loop))
+        text = loop.run_until_complete(tcp_echo_client(messages[0][1], loop))
         loop.close()
         user = "Chatbot"
     return [user, text]
@@ -48,6 +48,7 @@ def inference():
     if redirection:
         messages.insert(0, generateMessage(False))
         redirection = False
+    print(messages)
     return render_template('inference.html', messages=messages)
 
 
