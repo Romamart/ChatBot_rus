@@ -7,18 +7,18 @@ from Classes import *
 from Proc import Proc
 from Voc import Voc
 import requests
-from natasha import AddressExtractor
-# from natasha import NamesExtractor, AddressExtractor
-
+# from natasha import AddressExtractor
+from natasha import NamesExtractor, AddressExtractor
+import requests
 import os
-
+import lxml.html
 
 corpus_name = "train"
 corpus = os.path.join("Data", corpus_name)
 USE_CUDA = torch.cuda.is_available()
 device = torch.device("cuda" if USE_CUDA else "cpu")
 voc = Voc(corpus)
-voc.load()
+# voc.load()
 proc = Proc(10, 3)
 datafile = os.path.join(corpus, "di_all.txt")
 save_dir = os.path.join("Data", "save")
@@ -30,12 +30,10 @@ decoder_n_layers = 2
 dropout = 0.1
 batch_size = 64
 
-checkpoint_iter = 4000
+checkpoint_iter = 10000
 loadFilename = os.path.join(save_dir, model_name, corpus_name,
                             '{}-{}_{}'.format(encoder_n_layers, decoder_n_layers, hidden_size),
                             '{}_checkpoint.tar'.format(checkpoint_iter))
-
-
 
 if loadFilename:
     checkpoint = torch.load(loadFilename)
@@ -62,8 +60,6 @@ decoder.eval()
 
 # Initialize search module
 searcher = GreedySearchDecoder(encoder, decoder)
-
-
 
 
 def evaluate(encoder, decoder, searcher, voc, sentence, max_length=10):
@@ -105,10 +101,26 @@ def evaluateInput(input_sentence='', encoder=encoder, decoder=decoder, searcher=
                                     path += word + '+'
                             else:
                                 path += part.name + '+'
+
                 return path[:-1] + '/'
             else:
-                return 'Cлишком много адресов'
-
+                ex = NamesExtractor()
+                if ex(input_sentence) and len(ex(input_sentence)) == 1:
+                    if ex(input_sentence)[0].fact.first != None and ex(input_sentence)[0].fact.last != None:
+                        path = f'https://vk.com/search?c%5Bper_page%5D=40&c%5Bphoto%5D=1&c%5Bq%5D={ex(input_sentence)[0].fact.first}%20{ex(input_sentence)[0].fact.last}&c%5Bsection%5D=people'
+                        rec = requests.get(path)
+                        vk_mask = 'https://vk.com'
+                        tree = lxml.html.fromstring(rec.text)
+                        links = tree.xpath('//a[@class="simple_fit_item search_item"]/@href')
+                        if links != []:
+                            st = ''
+                            for i in range(len(links)):
+                                st += vk_mask + links[i] + '\n'
+                            return st
+                        else:
+                            return 'По вашему запросу ничего не найдено'
+                else:
+                    return "Ничего"
 
 
         else:
