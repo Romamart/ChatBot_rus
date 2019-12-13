@@ -1,5 +1,4 @@
 from flask import Flask, render_template, redirect, url_for, request
-
 from RunBot import evaluateInput  # output chatbot sentence 
 
 app = Flask(__name__)

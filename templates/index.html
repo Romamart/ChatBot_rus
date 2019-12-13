@@ -1,18 +1,95 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF8">
-    <title>AYO</title>
-    <link href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet">
-</head>
-<body>
-    <div class="wrapper">
-        <h1>Hello and welcome!</h1>
-        <div class = "links">
-            <a href="{{ url_for('inference') }}"> Inference page </a>
-            <a href="{{ url_for('reinforcment') }}"> Reinforcment page </a>
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+    <link rel="stylesheet" href="../static/css/index.css">
+  </head>
+  <body>
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <a href="{{ url_for('mainPage') }}" class="navbar-brand">
+            <img src="../static/imgs/home.svg" width="30" height="30" alt="logo">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse"
+         data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" 
+         aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse text-center" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a href="{{url_for('mainPage')}}" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{url_for('inference')}}" class="nav-link">Inference</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link disabled">Reinforcment</a>
+                </li>
+            </ul>
         </div>
-    </div>
-    
-</body>
+      </nav>
+
+
+      <div class="container-fluid p-0">
+          <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+              <ol class="carousel-indicators">
+                  <li class="acrive" data-target="#carouselExampleIndicators" data-slide-to="0"></li>
+                  <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                  <!-- <li data-target="#carouselExampleIndicators" data-slide-to="2"></li> -->
+              </ol>
+              <div class="carousel-inner text-center">
+                <div class="carousel-item active">
+                    <img src="../static/imgs/carousel1.jpg" class="d-block w-100">
+                    <div class="carousel-caption d-none d-md-block h-50">
+                        <h3 style="color: black;">Trained from scratch</h3>
+                        <h5 style="color: black;">ChatBot was trained from scratch using our own dataset</h5>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="../static/imgs/carousel2.jpg" class="d-block w-100">
+                    <div class="carousel-caption d-none d-md-block h-50">
+                        <h3 style="color: whitesmoke;">Find what you need</h3>
+                        <h5 style="color: whitesmoke;">ChatBot can find anything what you need such as places, people etc</h5>
+                </div>
+                </div>
+                <!-- <div class="carousel-item">
+                    <img src="../static/imgs/carousel1.jpg" alt="" class="d-block w-100">
+                </div> -->
+              </div>
+
+              <a href="#carouselExampleIndicators" class="carousel-control-prev" role="button"
+                data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <spa class="sr-only">Previous</spa>
+              </a>
+              <a href="#carouselExampleIndicators" class="carousel-control-next" role="button"
+                data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+              </a>
+
+          </div>
+      </div>
+
+
+
+        <!-- <div class="container">
+            <h1>Hello, world!</h1>
+            <button class="btn btn-success"> Button </button>
+        </div> -->
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  </body>
 </html>
