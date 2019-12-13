@@ -47,7 +47,6 @@ def inference():
     if redirection:
         messages.insert(0, generateMessage(False))
         redirection = False
-    print(messages)
     return render_template('inference.html', messages=messages)
 
 
