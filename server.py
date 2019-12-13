@@ -5,13 +5,9 @@ from RunBot import evaluateInput
 async def handle_echo(reader, writer):
     data = await reader.read(100)
     message = data.decode()
-    addr = writer.get_extra_info('peername')
-    
     botAnswer = evaluateInput(message)
-
     writer.write(botAnswer.encode())
     await writer.drain()
-
     writer.close()
 
 loop = asyncio.get_event_loop()
