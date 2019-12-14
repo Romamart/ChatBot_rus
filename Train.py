@@ -222,9 +222,9 @@ if __name__ == '__main__':
     teacher_forcing_ratio = 1.0
     learning_rate = 0.0005
     decoder_learning_ratio = 1.0
-    n_iteration = 4000
-    print_every = 10
-    save_every = 500
+    n_iteration = 20000
+    print_every = 50
+    save_every = 10000
 
     encoder.train()
     decoder.train()
