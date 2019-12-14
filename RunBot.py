@@ -29,7 +29,7 @@ decoder_n_layers = 2
 dropout = 0.1
 batch_size = 64
 
-checkpoint_iter = 20000
+checkpoint_iter = 10000
 loadFilename = os.path.join(save_dir, model_name, corpus_name,
                             '{}-{}_{}'.format(encoder_n_layers, decoder_n_layers, hidden_size),
                             '{}_checkpoint.tar'.format(checkpoint_iter))
