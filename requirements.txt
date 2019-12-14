@@ -1,3 +1,5 @@
 torch >= 1.1.0
 natasha
 flask
+beautifulsoup4
+google

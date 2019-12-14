@@ -6,12 +6,11 @@ from __future__ import unicode_literals
 from Classes import *
 from Proc import Proc
 from Voc import Voc
-import requests
-# from natasha import AddressExtractor
 from natasha import NamesExtractor, AddressExtractor
 import requests
 import os
 import lxml.html
+from googlesearch import search
 
 corpus_name = "train"
 corpus = os.path.join("Data", corpus_name)
@@ -30,7 +29,7 @@ decoder_n_layers = 2
 dropout = 0.1
 batch_size = 64
 
-checkpoint_iter = 10000
+checkpoint_iter = 4000
 loadFilename = os.path.join(save_dir, model_name, corpus_name,
                             '{}-{}_{}'.format(encoder_n_layers, decoder_n_layers, hidden_size),
                             '{}_checkpoint.tar'.format(checkpoint_iter))
@@ -120,7 +119,21 @@ def evaluateInput(input_sentence='', encoder=encoder, decoder=decoder, searcher=
                         else:
                             return 'По вашему запросу ничего не найдено'
                 else:
-                    return "Ничего"
+                    query = ''
+                    for i in range(len(input_sentence)-5):
+                        if input_sentence[i:i+5].lower() == 'найти' and i != len(input_sentence)-6:
+                            query = input_sentence[i+6:]
+                    if query != '':
+                        links = list(search(query, tld="co.in", num=10, stop=3, pause=1))
+                        if links != []:
+                            st = '--list'
+                            for i in range(len(links)):
+                                st += (links[i] + '\n')
+                            return st
+                        else:
+                            return 'По вашему запросу ничего не найдено'
+                    else: return 'По вашему запросу ничего не найдено'
+
 
 
         else:

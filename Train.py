@@ -30,7 +30,7 @@ MIN_COUNT = 3
 
 
 def train(input_variable, lengths, target_variable, mask, max_target_len, encoder, decoder, embedding,
-          encoder_optimizer, decoder_optimizer, batch_size, clip, max_length=MAX_LENGTH):
+          encoder_optimizer, decoder_optimizer, batch_size, clip, flag = True):
 
     # Zero gradients
     encoder_optimizer.zero_grad()
@@ -86,7 +86,8 @@ def train(input_variable, lengths, target_variable, mask, max_target_len, encode
             print_losses.append(mask_loss.item() * nTotal)
             n_totals += nTotal
 
-    loss.backward()
+    if flag:
+        loss.backward()
 
     _ = nn.utils.clip_grad_norm_(encoder.parameters(), clip)
     _ = nn.utils.clip_grad_norm_(decoder.parameters(), clip)
@@ -96,30 +97,41 @@ def train(input_variable, lengths, target_variable, mask, max_target_len, encode
 
     return sum(print_losses) / n_totals
 
-def trainIters(model_name, voc, pairs, encoder, decoder, encoder_optimizer, decoder_optimizer, embedding, encoder_n_layers, decoder_n_layers, save_dir, n_iteration, batch_size, print_every, save_every, clip, corpus_name, loadFilename):
+def trainIters(model_name, voc, pairs, val, encoder, decoder, encoder_optimizer, decoder_optimizer, embedding, encoder_n_layers, decoder_n_layers, save_dir, n_iteration, batch_size, print_every, save_every, clip, corpus_name, loadFilename):
 
     training_batches = [proc.batch2TrainData(voc, [random.choice(pairs) for _ in range(batch_size)])
+                      for _ in range(n_iteration)]
+    val_batches = [proc.batch2TrainData(voc, [random.choice(val) for _ in range(batch_size)])
                       for _ in range(n_iteration)]
 
     print('Initializing ...')
     start_iteration = 1
     print_loss = 0
+    print_loss_val = 0
     if loadFilename:
         start_iteration = checkpoint['iteration'] + 1
 
     print("Training...")
     for iteration in range(start_iteration, n_iteration + 1):
         training_batch = training_batches[iteration - 1]
+        val_batch = val_batches[iteration - 1]
         input_variable, lengths, target_variable, mask, max_target_len = training_batch
 
         loss = train(input_variable, lengths, target_variable, mask, max_target_len, encoder,
                      decoder, embedding, encoder_optimizer, decoder_optimizer, batch_size, clip)
         print_loss += loss
 
+        input_variable, lengths, target_variable, mask, max_target_len = val_batch
+        loss_val = train(input_variable, lengths, target_variable, mask, max_target_len, encoder,
+                         decoder, embedding, encoder_optimizer, decoder_optimizer, batch_size, clip, flag=False)
+        print_loss_val += loss_val
+
         if iteration % print_every == 0:
             print_loss_avg = print_loss / print_every
-            print("Iteration: {}; Percent complete: {:.1f}%; Average loss: {:.4f}".format(iteration, iteration / n_iteration * 100, print_loss_avg))
+            print_loss_val_avg = print_loss_val / print_every
+            print("Iteration: {}; Percent complete: {:.1f}%; Average loss: {:.4f}; Loss_val: {:.4f}".format(iteration, iteration / n_iteration * 100, print_loss_avg, print_loss_val_avg))
             print_loss = 0
+            print_loss_val = 0
 
         if (iteration % save_every == 0):
             directory = os.path.join(save_dir, model_name, corpus_name, '{}-{}_{}'.format(encoder_n_layers, decoder_n_layers, hidden_size))
@@ -136,54 +148,6 @@ def trainIters(model_name, voc, pairs, encoder, decoder, encoder_optimizer, deco
                 'embedding': embedding.state_dict()
             }, os.path.join(directory, '{}_{}.tar'.format(iteration, 'checkpoint')))
 
-
-class GreedySearchDecoder(nn.Module):
-    def __init__(self, encoder, decoder):
-        super(GreedySearchDecoder, self).__init__()
-        self.encoder = encoder
-        self.decoder = decoder
-
-    def forward(self, input_seq, input_length, max_length):
-        encoder_outputs, encoder_hidden = self.encoder(input_seq, input_length)
-        decoder_hidden = encoder_hidden[:decoder.n_layers]
-        decoder_input = torch.ones(1, 1, device=device, dtype=torch.long) * SOS_token
-        all_tokens = torch.zeros([0], device=device, dtype=torch.long)
-        all_scores = torch.zeros([0], device=device)
-        for _ in range(max_length):
-            decoder_output, decoder_hidden = self.decoder(decoder_input, decoder_hidden, encoder_outputs)
-            decoder_scores, decoder_input = torch.max(decoder_output, dim=1)
-            all_tokens = torch.cat((all_tokens, decoder_input), dim=0)
-            all_scores = torch.cat((all_scores, decoder_scores), dim=0)
-            decoder_input = torch.unsqueeze(decoder_input, 0)
-        return all_tokens, all_scores
-
-
-
-def evaluate(encoder, decoder, searcher, voc, sentence, max_length=MAX_LENGTH):
-    indexes_batch = [proc.indexesFromSentence(voc, sentence)]
-    lengths = torch.tensor([len(indexes) for indexes in indexes_batch])
-    input_batch = torch.LongTensor(indexes_batch).transpose(0, 1)
-    input_batch = input_batch.to(device)
-    lengths = lengths.to(device)
-    tokens, scores = searcher(input_batch, lengths, max_length)
-    decoded_words = [voc.index2word[token.item()] for token in tokens]
-    return decoded_words
-
-
-def evaluateInput(encoder, decoder, searcher, voc):
-    input_sentence = ''
-    while(1):
-        try:
-            input_sentence = input('> ')
-            if input_sentence == 'q' or input_sentence == 'quit': break
-            input_sentence = proc.normalizeString(input_sentence)
-            output_words = evaluate(encoder, decoder, searcher, voc, input_sentence)
-            output_words[:] = [x for x in output_words if not (x == 'EOS' or x == 'PAD')]
-            print('Bot:', ' '.join(output_words))
-
-        except KeyError:
-            print("Error: Encountered unknown word.")
-
 if __name__ == '__main__':
     save_dir = os.path.join("Data", "save")
     voc, pairs = proc.loadPrepareData(corpus, corpus_name, datafile, save_dir)
@@ -194,8 +158,15 @@ if __name__ == '__main__':
 
     pairs = proc.trimRareWords(voc, pairs)
 
-    voc.save()
-
+    # voc.save()
+    # lines_tr = open("Data/train/di_train_95.txt", encoding='utf-8').read().strip().split('\n')
+    # lines = open("Data/train/di_val_5.txt", encoding='utf-8').read().strip().split('\n')
+    # tr_pairs = [[proc.normalizeString(s) for s in l.split('\t')] for l in lines_tr]
+    # val_pairs = [[proc.normalizeString(s) for s in l.split('\t')] for l in lines]
+    # val = proc.filterPairs(val_pairs)
+    # pairs = proc.filterPairs(tr_pairs)
+    val = pairs[round(len(pairs)*0.95):]
+    pairs = pairs[:round(len(pairs)*0.95)]
 
     print("TRUE")
     small_batch_size = 5
@@ -252,7 +223,7 @@ if __name__ == '__main__':
     learning_rate = 0.0001
     decoder_learning_ratio = 5.0
     n_iteration = 4000
-    print_every = 1000
+    print_every = 10
     save_every = 500
 
     encoder.train()
@@ -276,7 +247,7 @@ if __name__ == '__main__':
                 state[k] = v.cuda()
 
     print("Starting Training!")
-    trainIters(model_name, voc, pairs, encoder, decoder, encoder_optimizer, decoder_optimizer,
+    trainIters(model_name, voc, pairs, val, encoder, decoder, encoder_optimizer, decoder_optimizer,
                embedding, encoder_n_layers, decoder_n_layers, save_dir, n_iteration, batch_size,
                print_every, save_every, clip, corpus_name, loadFilename)
 
